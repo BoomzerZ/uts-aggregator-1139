@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  aggregator:
+    build: .
+    container_name: uts-aggregator
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+  publisher:
+    image: python:3.11-slim
+    container_name: uts-publisher
+    depends_on:
+      - aggregator
+    volumes:
+      - ./:/work
+    working_dir: /work
+    command: ["python", "scripts/stress_test.py", "--url", "http://aggregator:8080", "--count", "1000", "--dup-rate", "0.2"]
